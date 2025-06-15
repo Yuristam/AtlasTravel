@@ -1,9 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AtlasTravel.MVC", "AtlasTravel.MVC\AtlasTravel.MVC.csproj", "{C0EEC97A-469A-472C-B844-B826908A42DF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{23E6427E-9B65-40A2-BB03-574A137E2071}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tables", "Tables", "{869B599E-90F2-4AFA-94B5-7EDDFE492553}"
+	ProjectSection(SolutionItems) = preProject
+		Countries.sql = Countries.sql
+		Trips.sql = Trips.sql
+		Users.sql = Users.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +27,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{869B599E-90F2-4AFA-94B5-7EDDFE492553} = {23E6427E-9B65-40A2-BB03-574A137E2071}
 	EndGlobalSection
 EndGlobal
