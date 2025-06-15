@@ -1,4 +1,12 @@
+using AtlasTravel.MVC.Interfaces;
+using AtlasTravel.MVC.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("MSSQLConnection");
+
+builder.Services.AddScoped<IUsersRepository>(provider =>
+    new UsersRepository(connectionString));
 
 builder.Services.AddControllersWithViews();
 
