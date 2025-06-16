@@ -39,7 +39,7 @@ namespace AtlasTravel.MVC.Repositories
 
         public async Task<User> GetUserByIdAsync(int id)
         {
-            var sql = "SELECT * FROM Users";
+            var sql = "SELECT * FROM Users WHERE UserID = @ID";
             var parameters = new[] { new SqlParameter("@ID", id) };
 
             using var reader = await SqlHelper.ExecuteReaderAsync(_connectionString, sql, parameters);
@@ -62,7 +62,7 @@ namespace AtlasTravel.MVC.Repositories
         public async Task CreateUserAsync(User user)
         {
             var sql = @"INSERT INTO Users (FullName, Email, Password, Budget)
-                          VALUES (@FullName, @Email, @Password, @Budget)";
+                        VALUES (@FullName, @Email, @Password, @Budget)";
 
             var parameters = new[] {
                 new SqlParameter("@FullName", user.FullName),
@@ -77,8 +77,8 @@ namespace AtlasTravel.MVC.Repositories
         public async Task UpdateUserAsync(User user)
         {
             var sql = @"UPDATE Users
-                          SET FullName = @FullName, Email = @Email, Password = @Password, Budget = @Budget
-                          WHERE UserID = @UserID";
+                        SET FullName = @FullName, Email = @Email, Password = @Password, Budget = @Budget
+                        WHERE UserID = @UserID";
 
             var parameters = new[] { 
                 new SqlParameter("@FullName", user.FullName),
