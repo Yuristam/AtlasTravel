@@ -77,12 +77,11 @@ namespace AtlasTravel.MVC.Repositories
         public async Task UpdateUserAsync(User user)
         {
             var sql = @"UPDATE Users
-                        SET FullName = @FullName, Email = @Email, Password = @Password, Budget = @Budget
+                        SET FullName = @FullName, Password = @Password, Budget = @Budget
                         WHERE UserID = @UserID";
 
             var parameters = new[] { 
                 new SqlParameter("@FullName", user.FullName),
-                new SqlParameter("@Email", user.Email),
                 new SqlParameter("@Password", user.Password),
                 new SqlParameter("@Budget", user.Budget),
                 new SqlParameter("@UserID", user.UserID)

@@ -28,7 +28,7 @@ namespace AtlasTravel.MVC.Controllers
         {
             var user = await _userRepository.GetUserByIdAsync(id);
 
-            if (user != null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -72,12 +72,18 @@ namespace AtlasTravel.MVC.Controllers
                 return NotFound();
             }
 
-            return View();
+            return View(user);
         }
 
         [HttpPost("edit/{id}")]
-        public async Task<IActionResult> Edit(User user)
+        public async Task<IActionResult> Edit(int id, User user)
         {
+            if (id != user.UserID)
+            {
+                ModelState.AddModelError("", "Неверный идентификатор.");
+                return View(user);
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(user);
@@ -105,7 +111,7 @@ namespace AtlasTravel.MVC.Controllers
                 return NotFound();
             }
 
-            return View();
+            return View(user);
         }
 
         [HttpPost("delete/{id}"), ActionName("Delete")]
