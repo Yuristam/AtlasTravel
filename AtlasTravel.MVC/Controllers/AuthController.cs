@@ -1,4 +1,5 @@
-﻿using AtlasTravel.MVC.Interfaces;
+﻿using AtlasTravel.MVC.Dtos;
+using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,20 +22,28 @@ namespace AtlasTravel.MVC.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(User user)
+        public async Task<IActionResult> SignUp(RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(user);
+                return View(registerDto);
             }
             try
             {
-                var existingUser = await _usersRepository.GetUserByEmailAsync(user.Email);
+                var existingUser = await _usersRepository.GetUserByEmailAsync(registerDto.Email);
                 if (existingUser != null)
                 {
                     ModelState.AddModelError("Email", "Email уже используется.");
-                    return View(user);
+                    return View(registerDto);
                 }
+
+                var user = new User
+                {
+                    FullName = registerDto.FullName,
+                    Email = registerDto.Email,
+                    Password = registerDto.Password,
+                    Budget = 0
+                };
 
                 await _usersRepository.CreateUserAsync(user);
                 return RedirectToAction("SignIn");
@@ -42,7 +51,7 @@ namespace AtlasTravel.MVC.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при регистрации: {ex.Message}");
-                return View(user);
+                return View(registerDto);
             }
         }
 
@@ -53,18 +62,18 @@ namespace AtlasTravel.MVC.Controllers
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn(User user)
+        public async Task<IActionResult> SignIn(LoginDto loginDto)
         {
             if (!ModelState.IsValid)
             {
-                return View(user);
+                return View(loginDto);
             }
 
-            var existingUser = await _usersRepository.GetUserByEmailAsync(user.Email);
-            if (existingUser == null || existingUser.Password != user.Password)
+            var existingUser = await _usersRepository.GetUserByEmailAsync(loginDto.Email);
+            if (existingUser == null || existingUser.Password != loginDto.Password)
             {
                 ModelState.AddModelError("", "Неверный email или пароль.");
-                return View(user);
+                return View(loginDto);
             }
 
             HttpContext.Session.SetInt32("UserID", existingUser.UserID);

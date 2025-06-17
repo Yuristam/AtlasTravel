@@ -1,0 +1,43 @@
+﻿@model AtlasTravel.MVC.Models.User;
+
+@{
+    ViewData["Title"] = "Sign Up";
+}
+
+<h1 class="display-4">Sign Up</h1>
+<p>Please fill in the details to create a new account.</p>
+
+<form method="post" asp-action="SignUp">
+    <div class="form-group">
+        <label asp-for="FullName">Full Name</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+@*     <div class="form-group">
+        <label asp-for="Budget">Budget</label>
+        <input asp-for="Budget" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Budget" class="text-danger"></span>
+    </div> *@
+    <br/>
+    <button type="reset" class="btn btn-outline-secondary">Reset</button>
+    <button type="submit" class="btn btn-outline-primary">Create Account</button>    
+    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+</form>
+
+<div class="mt-3">
+    <a class="btn btn-info" asp-action="Index" asp-controller="Home">Back to Home</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
