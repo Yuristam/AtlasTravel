@@ -1,7 +1,10 @@
 ﻿using AtlasTravel.MVC.Dtos;
 using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AtlasTravel.MVC.Controllers
 {
@@ -76,15 +79,27 @@ namespace AtlasTravel.MVC.Controllers
                 return View(loginDto);
             }
 
-            HttpContext.Session.SetInt32("UserID", existingUser.UserID);
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, existingUser.UserID.ToString()),
+            new Claim(ClaimTypes.Name, existingUser.FullName),
+            new Claim(ClaimTypes.Email, existingUser.Email)
+        };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpGet("logout")]
-        public IActionResult Logout()
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Clear();
-            return RedirectToAction("SignIn");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
         }
     }
 }
