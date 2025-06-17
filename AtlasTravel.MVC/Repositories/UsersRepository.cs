@@ -96,5 +96,26 @@ namespace AtlasTravel.MVC.Repositories
             var parameters = new[] { new SqlParameter("@UserID", id) };
             await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
         }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            var sql = "SELECT * FROM Users WHERE Email = @Email";
+            var parameters = new[] { new SqlParameter("@Email", email) };
+            using var reader = await SqlHelper.ExecuteReaderAsync(_connectionString, sql, parameters);
+           
+            if (await reader.ReadAsync())
+            {
+                return new User
+                {
+                    UserID = (int)reader["UserID"],
+                    FullName = (string)reader["FullName"],
+                    Email = (string)reader["Email"],
+                    Password = (string)reader["Password"],
+                    Budget = (decimal?)reader["Budget"]
+                };
+            }
+
+            return null;
+        }
     }
 }
