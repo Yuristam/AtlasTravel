@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("MSSQLConnection");
 
 builder.Services.AddScoped<IUsersRepository>(provider => new UsersRepository(connectionString));
+builder.Services.AddScoped<IAdminRepository>(provider => new AdminRepository(connectionString));
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {

@@ -1,5 +1,6 @@
 ﻿using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Models;
+using AtlasTravel.MVC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -11,16 +12,23 @@ namespace AtlasTravel.MVC.Controllers
     public class AdminController : Controller
     {
         private readonly IUsersRepository _usersRepository;
+        private readonly IAdminRepository _adminRepository;
 
-        public AdminController(IUsersRepository usersRepository)
+        public AdminController(IUsersRepository usersRepository, IAdminRepository adminRepository)
         {
             _usersRepository = usersRepository;
+            _adminRepository = adminRepository;
         }
 
         [HttpGet("")]
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            return View();
+            var model = new AdminDashboardViewModel
+            {
+                TotalUsers = await _adminRepository.CountUsersAsync(),
+            };
+
+            return View(model);
         }
 
         [HttpGet("users")]
@@ -51,22 +59,37 @@ namespace AtlasTravel.MVC.Controllers
         }
 
         [HttpPost("create-user")]
-        public async Task<IActionResult> CreateUser(User user)
+        public async Task<IActionResult> CreateUser(CreateUserViewModel createUserViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(user);
+                return View(createUserViewModel);
             }
 
             try
             {
+                var existingUser = await _usersRepository.GetUserByEmailAsync(createUserViewModel.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "Email уже используется.");
+                    return View(createUserViewModel);
+                }
+
+                var user = new User
+                {
+                    FullName = createUserViewModel.FullName,
+                    Email = createUserViewModel.Email,
+                    Password = createUserViewModel.Password,
+                    Budget = createUserViewModel.Budget
+                };
+
                 await _usersRepository.CreateUserAsync(user);
-                return RedirectToAction("Index");
+                return RedirectToAction("Users");
             }
             catch (SqlException ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при сохранении данных. {ex.Message}");
-                return View(user);
+                return View(createUserViewModel);
             }
         }
 
@@ -80,32 +103,49 @@ namespace AtlasTravel.MVC.Controllers
                 return NotFound();
             }
 
-            return View(user);
+            var model = new EditUserViewModel
+            {
+                UserID = user.UserID,
+                FullName = user.FullName,
+                Budget = user.Budget,
+                OldPassword = user.Password
+            };
+
+            return View(model);
         }
 
         [HttpPost("edit-user/{id}")]
-        public async Task<IActionResult> EditUser(int id, User user)
+        public async Task<IActionResult> EditUser(int id, EditUserViewModel userEditViewModel)
         {
-            if (id != user.UserID)
+            if (id != userEditViewModel.UserID)
             {
                 ModelState.AddModelError("", "Неверный идентификатор.");
-                return View(user);
+                return View(userEditViewModel);
             }
 
             if (!ModelState.IsValid)
             {
-                return View(user);
+                return View(userEditViewModel);
             }
 
             try
             {
-                await _usersRepository.UpdateUserAsync(user);
-                return RedirectToAction("Index");
+                var existingUser = await _usersRepository.GetUserByIdAsync(id);
+                existingUser.FullName = userEditViewModel.FullName;
+                existingUser.Budget = userEditViewModel.Budget;
+
+                if (userEditViewModel.NewPassword != null && userEditViewModel.ConfirmPassword != null)
+                {
+                    existingUser.Password = userEditViewModel.NewPassword;
+                }
+
+                await _adminRepository.UpdateUserByAdminAsync(existingUser);
+                return RedirectToAction("Users");
             }
             catch (SqlException ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при изменении данных. {ex.Message}");
-                return View(user);
+                return View(userEditViewModel);
             }
         }
 
@@ -128,7 +168,7 @@ namespace AtlasTravel.MVC.Controllers
             try
             {
                 await _usersRepository.DeleteUserAsync(id);
-                return RedirectToAction("Index");
+                return RedirectToAction("Users");
             }
             catch (SqlException ex)
             {

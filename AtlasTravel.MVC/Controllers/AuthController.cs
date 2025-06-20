@@ -1,6 +1,6 @@
-﻿using AtlasTravel.MVC.Dtos;
-using AtlasTravel.MVC.Interfaces;
+﻿using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Models;
+using AtlasTravel.MVC.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -25,26 +25,26 @@ namespace AtlasTravel.MVC.Controllers
         }
 
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(RegisterDto registerDto)
+        public async Task<IActionResult> SignUp(RegisterViewModel registerViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(registerDto);
+                return View(registerViewModel);
             }
             try
             {
-                var existingUser = await _usersRepository.GetUserByEmailAsync(registerDto.Email);
+                var existingUser = await _usersRepository.GetUserByEmailAsync(registerViewModel.Email);
                 if (existingUser != null)
                 {
                     ModelState.AddModelError("Email", "Email уже используется.");
-                    return View(registerDto);
+                    return View(registerViewModel);
                 }
 
                 var user = new User
                 {
-                    FullName = registerDto.FullName,
-                    Email = registerDto.Email,
-                    Password = registerDto.Password,
+                    FullName = registerViewModel.FullName,
+                    Email = registerViewModel.Email,
+                    Password = registerViewModel.Password,
                     Budget = 0
                 };
 
@@ -54,7 +54,7 @@ namespace AtlasTravel.MVC.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при регистрации: {ex.Message}");
-                return View(registerDto);
+                return View(registerViewModel);
             }
         }
 
@@ -65,18 +65,18 @@ namespace AtlasTravel.MVC.Controllers
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn(LoginDto loginDto)
+        public async Task<IActionResult> SignIn(LoginViewModel loginViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View(loginDto);
+                return View(loginViewModel);
             }
 
-            var existingUser = await _usersRepository.GetUserByEmailAsync(loginDto.Email);
-            if (existingUser == null || existingUser.Password != loginDto.Password)
+            var existingUser = await _usersRepository.GetUserByEmailAsync(loginViewModel.Email);
+            if (existingUser == null || existingUser.Password != loginViewModel.Password)
             {
                 ModelState.AddModelError("", "Неверный email или пароль.");
-                return View(loginDto);
+                return View(loginViewModel);
             }
 
             var claims = new List<Claim>

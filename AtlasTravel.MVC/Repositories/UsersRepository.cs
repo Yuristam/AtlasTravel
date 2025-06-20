@@ -30,7 +30,7 @@ namespace AtlasTravel.MVC.Repositories
                     FullName = reader.GetString(1),
                     Email = reader.GetString(2),
                     Password = reader.GetString(3),
-                    Budget = reader.GetDecimal(4)
+                    Budget = reader.IsDBNull(4) ? (decimal?)null : reader.GetDecimal(4)
                 });
             }
 
@@ -52,7 +52,7 @@ namespace AtlasTravel.MVC.Repositories
                     FullName = reader.GetString(1),
                     Email = reader.GetString(2),
                     Password = reader.GetString(3),
-                    Budget = reader.GetDecimal(4),
+                    Budget = reader.IsDBNull(4) ? (decimal?)null : reader.GetDecimal(4),
                     RoleID = reader.GetInt32(5)
                 };
             }
@@ -69,7 +69,7 @@ namespace AtlasTravel.MVC.Repositories
                 new SqlParameter("@FullName", user.FullName),
                 new SqlParameter("@Email", user.Email),
                 new SqlParameter("@Password", user.Password),
-                new SqlParameter("@Budget", user.Budget)
+                new SqlParameter("@Budget", (object?)user.Budget ?? DBNull.Value),
             };
 
             await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
@@ -83,7 +83,7 @@ namespace AtlasTravel.MVC.Repositories
 
             var parameters = new[] {
                 new SqlParameter("@FullName", user.FullName),
-                new SqlParameter("@Budget", user.Budget),
+                new SqlParameter("@Budget", (object?)user.Budget ?? DBNull.Value),
                 new SqlParameter("@UserID", user.UserID)
             };
 
@@ -120,7 +120,7 @@ namespace AtlasTravel.MVC.Repositories
                     FullName = (string)reader["FullName"],
                     Email = (string)reader["Email"],
                     Password = (string)reader["Password"],
-                    Budget = (decimal?)reader["Budget"],
+                    Budget = reader["Budget"] is DBNull ? null : (decimal?)reader["Budget"],
                     RoleName = (string)reader["RoleName"],
                 };
             }

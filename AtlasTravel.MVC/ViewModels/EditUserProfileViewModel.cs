@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AtlasTravel.MVC.Dtos
+namespace AtlasTravel.MVC.ViewModels
 {
-    public class EditUserDto
+    public class EditUserProfileViewModel
     {
         public int UserID { get; set; }
 
@@ -10,8 +10,7 @@ namespace AtlasTravel.MVC.Dtos
         [StringLength(100, ErrorMessage = "Полное имя не может превышать 100 символов")]
         public string FullName { get; set; }
 
-        [Required(ErrorMessage = "Бюджет обязателен")]
         [Range(0, double.MaxValue, ErrorMessage = "Бюджет должен быть неотрицательным числом")]
-        public decimal Budget { get; set; }
+        public decimal? Budget { get; set; }
     }
 }

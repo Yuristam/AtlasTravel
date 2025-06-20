@@ -1,6 +1,5 @@
-﻿using AtlasTravel.MVC.Dtos;
-using AtlasTravel.MVC.Interfaces;
-using AtlasTravel.MVC.Models;
+﻿using AtlasTravel.MVC.Interfaces;
+using AtlasTravel.MVC.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,53 +19,6 @@ namespace AtlasTravel.MVC.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-            var users = await _userRepository.GetAllUsersAsync();
-
-            return View(users);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(int id)
-        {
-            var user = await _userRepository.GetUserByIdAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
-        [HttpGet("create")]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpPost("create")]
-        public async Task<IActionResult> Create(User user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(user);
-            }
-
-            try
-            {
-                await _userRepository.CreateUserAsync(user);
-                return RedirectToAction("Index");
-            }
-            catch (SqlException ex)
-            {
-                ModelState.AddModelError("", $"Произошла ошибка при сохранении данных. {ex.Message}");
-                return View(user);
-            }
-        }
-
         [HttpGet("profile")]
         public async Task<IActionResult> Profile()
         {
@@ -75,7 +27,7 @@ namespace AtlasTravel.MVC.Controllers
             return View(user);
         }
 
-        [HttpGet("editprofile")]
+        [HttpGet("edit-profile")]
         public async Task<IActionResult> EditProfile()
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -86,29 +38,36 @@ namespace AtlasTravel.MVC.Controllers
                 return NotFound();
             }
 
-            return View(user);
+            var model = new EditUserProfileViewModel
+            {
+                UserID = user.UserID,
+                FullName = user.FullName,
+                Budget = user.Budget
+            };
+
+            return View(model);
         }
 
-        [HttpPost("editprofile")]
-        public async Task<IActionResult> EditProfile(EditUserDto userDto)
+        [HttpPost("edit-profile")]
+        public async Task<IActionResult> EditProfile(EditUserProfileViewModel userViewModel)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            if (userId != userDto.UserID)
+            if (userId != userViewModel.UserID)
             {
                 ModelState.AddModelError("", "Неверный идентификатор.");
-                return View(userDto);
+                return View(userViewModel);
             }
 
             if (!ModelState.IsValid)
             {
-                return View(userDto);
+                return View(userViewModel);
             }
 
             try
             {
                 var existingUser = await _userRepository.GetUserByIdAsync(userId);
-                existingUser.FullName = userDto.FullName;
-                existingUser.Budget = userDto.Budget;
+                existingUser.FullName = userViewModel.FullName;
+                existingUser.Budget = userViewModel.Budget;
 
                 await _userRepository.UpdateUserAsync(existingUser);
                 return RedirectToAction("Profile");
@@ -116,22 +75,22 @@ namespace AtlasTravel.MVC.Controllers
             catch (SqlException ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при изменении данных. {ex.Message}");
-                return View(userDto);
+                return View(userViewModel);
             }
         }
 
-        [HttpGet("changepassword")]
+        [HttpGet("change-password")]
         public IActionResult ChangePassword()
         {
             return View();
         }
 
-        [HttpPost("changepassword")]
-        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel ChangePasswordVM)
         {
             if (!ModelState.IsValid)
             {
-                return View(dto);
+                return View(ChangePasswordVM);
             }
 
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -139,13 +98,13 @@ namespace AtlasTravel.MVC.Controllers
 
             if (user == null) return NotFound();
             
-            if (user.Password != dto.CurrentPassword)
+            if (user.Password != ChangePasswordVM.CurrentPassword)
             {
                 ModelState.AddModelError("CurrentPassword", "Текущий пароль неверен.");
                 return View();
             }
 
-            await _userRepository.ChangePassword(userId, dto.NewPassword);
+            await _userRepository.ChangePassword(userId, ChangePasswordVM.NewPassword);
 
             TempData["PasswordChanged"] = "Пароль успешно обновлён.";
             return RedirectToAction("EditProfile");

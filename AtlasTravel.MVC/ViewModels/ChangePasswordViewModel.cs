@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AtlasTravel.MVC.Dtos
+namespace AtlasTravel.MVC.ViewModels
 {
-    public class ChangePasswordDto
+    public class ChangePasswordViewModel
     {
         [Required]
         [DataType(DataType.Password)]

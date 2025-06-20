@@ -1,4 +1,4 @@
-@model AtlasTravel.MVC.Models.User;
+@model AtlasTravel.MVC.ViewModels.EditUserProfileViewModel;
 
 @{
     ViewData["Title"] = "Edit User";
@@ -9,7 +9,6 @@
 
 <form asp-action="EditProfile" method="post">
     <input type="hidden" asp-for="UserID"/>
-    @* <input type="hidden" asp-for="Email"/> *@
 
     <div class="form-group">
         <label asp-for="FullName">Full Name</label>
@@ -30,4 +29,3 @@
     <a class="btn btn-secondary" asp-action="Profile">Cancel</a>
     
 </form>
-
