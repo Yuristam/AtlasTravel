@@ -83,7 +83,8 @@ namespace AtlasTravel.MVC.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, existingUser.UserID.ToString()),
                 new Claim(ClaimTypes.Name, existingUser.FullName),
-                new Claim(ClaimTypes.Email, existingUser.Email)
+                new Claim(ClaimTypes.Email, existingUser.Email),
+                new Claim(ClaimTypes.Role, existingUser.RoleName)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

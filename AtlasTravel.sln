@@ -9,9 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{23E6427E-9B6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tables", "Tables", "{869B599E-90F2-4AFA-94B5-7EDDFE492553}"
 	ProjectSection(SolutionItems) = preProject
-		Countries.sql = Countries.sql
-		Trips.sql = Trips.sql
-		Users.sql = Users.sql
+		SQL\Tables\Countries.sql = SQL\Tables\Countries.sql
+		Roles.sql = Roles.sql
+		SQL\Tables\Trips.sql = SQL\Tables\Trips.sql
+		SQL\Tables\Users.sql = SQL\Tables\Users.sql
 	EndProjectSection
 EndProject
 Global

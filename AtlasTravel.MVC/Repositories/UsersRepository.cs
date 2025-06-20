@@ -52,7 +52,8 @@ namespace AtlasTravel.MVC.Repositories
                     FullName = reader.GetString(1),
                     Email = reader.GetString(2),
                     Password = reader.GetString(3),
-                    Budget = reader.GetDecimal(4)
+                    Budget = reader.GetDecimal(4),
+                    RoleID = reader.GetInt32(5)
                 };
             }
 
@@ -98,7 +99,16 @@ namespace AtlasTravel.MVC.Repositories
 
         public async Task<User> GetUserByEmailAsync(string email)
         {
-            var sql = "SELECT * FROM Users WHERE Email = @Email";
+            var sql = @"SELECT 
+                            u.UserID,
+                            u.FullName,
+                            u.Email,
+                            u.Budget,
+                            u.Password,
+                            r.RoleName AS RoleName 
+                        FROM Users u
+                        JOIN Roles r ON u.RoleID = r.RoleID
+                        WHERE Email = @Email";
             var parameters = new[] { new SqlParameter("@Email", email) };
             using var reader = await SqlHelper.ExecuteReaderAsync(_connectionString, sql, parameters);
 
@@ -110,7 +120,8 @@ namespace AtlasTravel.MVC.Repositories
                     FullName = (string)reader["FullName"],
                     Email = (string)reader["Email"],
                     Password = (string)reader["Password"],
-                    Budget = (decimal?)reader["Budget"]
+                    Budget = (decimal?)reader["Budget"],
+                    RoleName = (string)reader["RoleName"],
                 };
             }
 
