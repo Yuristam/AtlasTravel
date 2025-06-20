@@ -1,10 +1,15 @@
-﻿using AtlasTravel.MVC.Interfaces;
+﻿using AtlasTravel.MVC.Dtos;
+using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Security.Claims;
 
 namespace AtlasTravel.MVC.Controllers
 {
+    [Authorize]
     [Route("users")]
     public class UsersController : Controller
     {
@@ -62,10 +67,19 @@ namespace AtlasTravel.MVC.Controllers
             }
         }
 
-        [HttpGet("edit/{id}")]
-        public async Task<IActionResult> Edit(int id)
+        [HttpGet("profile")]
+        public async Task<IActionResult> Profile()
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            return View(user);
+        }
+
+        [HttpGet("editprofile")]
+        public async Task<IActionResult> EditProfile()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = await _userRepository.GetUserByIdAsync(userId);
 
             if (user == null)
             {
@@ -75,38 +89,75 @@ namespace AtlasTravel.MVC.Controllers
             return View(user);
         }
 
-        [HttpPost("edit/{id}")]
-        public async Task<IActionResult> Edit(int id, User user)
+        [HttpPost("editprofile")]
+        public async Task<IActionResult> EditProfile(EditUserDto userDto)
         {
-            if (id != user.UserID)
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            if (userId != userDto.UserID)
             {
                 ModelState.AddModelError("", "Неверный идентификатор.");
-                return View(user);
+                return View(userDto);
             }
 
             if (!ModelState.IsValid)
             {
-                return View(user);
+                return View(userDto);
             }
 
             try
             {
-                await _userRepository.UpdateUserAsync(user);
-                return RedirectToAction("Index");
+                var existingUser = await _userRepository.GetUserByIdAsync(userId);
+                existingUser.FullName = userDto.FullName;
+                existingUser.Budget = userDto.Budget;
+
+                await _userRepository.UpdateUserAsync(existingUser);
+                return RedirectToAction("Profile");
             }
             catch (SqlException ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при изменении данных. {ex.Message}");
-                return View(user);
+                return View(userDto);
             }
         }
 
-        [HttpGet("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet("changepassword")]
+        public IActionResult ChangePassword()
         {
-            var user = await _userRepository.GetUserByIdAsync(id);
+            return View();
+        }
+
+        [HttpPost("changepassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
+            if (user == null) return NotFound();
             
-            if(user == null)
+            if (user.Password != dto.CurrentPassword)
+            {
+                ModelState.AddModelError("CurrentPassword", "Текущий пароль неверен.");
+                return View();
+            }
+
+            await _userRepository.ChangePassword(userId, dto.NewPassword);
+
+            TempData["PasswordChanged"] = "Пароль успешно обновлён.";
+            return RedirectToAction("EditProfile");
+        }
+
+        [HttpGet("delete")]
+        public async Task<IActionResult> Delete()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
+            if (user == null)
             {
                 return NotFound();
             }
@@ -114,19 +165,23 @@ namespace AtlasTravel.MVC.Controllers
             return View(user);
         }
 
-        [HttpPost("delete/{id}"), ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpPost("delete"), ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed()
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var user = await _userRepository.GetUserByIdAsync(userId);
+
             try
             {
-                await _userRepository.DeleteUserAsync(id);
-                return RedirectToAction("Index");
+                await _userRepository.DeleteUserAsync(userId);
+                await HttpContext.SignOutAsync();
+                return RedirectToAction("Index", "Home");
             }
             catch (SqlException ex)
             {
                 ModelState.AddModelError("", $"Произошла ошибка при удалении данных. {ex.Message}");
                 return View();
             }
-        }
+        }      
     }
 }

@@ -1,4 +1,4 @@
-﻿@model AtlasTravel.MVC.Models.User;
+﻿@model AtlasTravel.MVC.Dtos.RegisterDto;
 
 @{
     ViewData["Title"] = "Sign Up";
@@ -23,11 +23,11 @@
         <input asp-for="Password" type="password" class="form-control" />
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
-@*     <div class="form-group">
-        <label asp-for="Budget">Budget</label>
-        <input asp-for="Budget" type="number" step="0.01" class="form-control" />
-        <span asp-validation-for="Budget" class="text-danger"></span>
-    </div> *@
+    <div class="form-group">
+        <label asp-for="ConfirmPassword">Confirm Password</label>
+        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
     <br/>
     <button type="reset" class="btn btn-outline-secondary">Reset</button>
     <button type="submit" class="btn btn-outline-primary">Create Account</button>    

@@ -12,5 +12,9 @@ namespace AtlasTravel.MVC.Dtos
 
         [Required, MinLength(6)]
         public string Password { get; set; }
+
+        [Required, MinLength(6)]
+        [Compare("Password", ErrorMessage = "Пароли не совпадают")]
+        public string ConfirmPassword { get; set; }
     }
 }

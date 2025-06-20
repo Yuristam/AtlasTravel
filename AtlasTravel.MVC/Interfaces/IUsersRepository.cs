@@ -10,5 +10,6 @@ namespace AtlasTravel.MVC.Interfaces
         Task CreateUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(int id);
+        Task ChangePassword(int userId, string newPassword);
     }
 }

@@ -39,6 +39,9 @@
                         }
                         @if (User.Identity.IsAuthenticated)
                         {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Users" asp-action="Profile">Profile</a>
+                            </li>
                             @* <span>Hello, @User.Identity.Name!</span> *@
                             <form asp-controller="Auth" asp-action="Logout" method="post">
                                 <button style="border: 0;" class="nav-link text-dark" type="submit">Logout</button>

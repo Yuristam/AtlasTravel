@@ -1,0 +1,44 @@
+﻿@model AtlasTravel.MVC.Models.User
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<h1 class="display-4">Profile</h1>
+<p>View and edit your profile details below.</p>
+
+<div class="text-center">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Budget</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.UserID</td>
+                <td>@Model.FullName</td>
+                <td>@Model.Email</td>
+                <td>@Model.Budget.ToString()</td>
+                <td>
+                    <a class="btn btn-warning" asp-action="EditProfile">Edit</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.UserID">Delete</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<br />
+
+<div>
+    <a class="btn btn-info" asp-action="Index" asp-controller="Home">Back to Home</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

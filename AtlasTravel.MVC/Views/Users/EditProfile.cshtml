@@ -7,20 +7,14 @@
 <h1 class="display-4">Edit User</h1>
 <p>Update the user details below.</p>
 
-<form asp-action="Edit" method="post">
+<form asp-action="EditProfile" method="post">
     <input type="hidden" asp-for="UserID"/>
-    <input type="hidden" asp-for="Email"/>
+    @* <input type="hidden" asp-for="Email"/> *@
 
     <div class="form-group">
         <label asp-for="FullName">Full Name</label>
         <input asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Password">New Password</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -31,8 +25,9 @@
 
     <br/>
 
+    <a class="btn btn-secondary" asp-action="ChangePassword">Change Password</a>
     <button type="submit" class="btn btn-primary">Update User</button>
-    <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+    <a class="btn btn-secondary" asp-action="Profile">Cancel</a>
     
 </form>
 

@@ -77,12 +77,11 @@ namespace AtlasTravel.MVC.Repositories
         public async Task UpdateUserAsync(User user)
         {
             var sql = @"UPDATE Users
-                        SET FullName = @FullName, Password = @Password, Budget = @Budget
+                        SET FullName = @FullName, Budget = @Budget
                         WHERE UserID = @UserID";
 
-            var parameters = new[] { 
+            var parameters = new[] {
                 new SqlParameter("@FullName", user.FullName),
-                new SqlParameter("@Password", user.Password),
                 new SqlParameter("@Budget", user.Budget),
                 new SqlParameter("@UserID", user.UserID)
             };
@@ -102,7 +101,7 @@ namespace AtlasTravel.MVC.Repositories
             var sql = "SELECT * FROM Users WHERE Email = @Email";
             var parameters = new[] { new SqlParameter("@Email", email) };
             using var reader = await SqlHelper.ExecuteReaderAsync(_connectionString, sql, parameters);
-           
+
             if (await reader.ReadAsync())
             {
                 return new User
@@ -116,6 +115,19 @@ namespace AtlasTravel.MVC.Repositories
             }
 
             return null;
+        }
+
+        public async Task ChangePassword(int userId, string newPassword)
+        {
+            var sql = @"UPDATE Users SET Password = @Password WHERE UserID = @UserID";
+
+            var parameters = new[]
+            {
+                new SqlParameter("Password", newPassword),
+                new SqlParameter("userId", userId)
+            };
+
+            await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
         }
     }
 }
