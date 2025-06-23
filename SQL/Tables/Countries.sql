@@ -1,7 +1,10 @@
 CREATE TABLE Countries (
 	CountryID TINYINT IDENTITY(1, 1),
 	CountryName NVARCHAR(250) NOT NULL,
-
+	CityID INT NOT NULL,
+	
 	CONSTRAINT UQ_Countries_Name UNIQUE (CountryName),
-	CONSTRAINT PK_Countries PRIMARY KEY (CountryID)
+	CONSTRAINT PK_Countries PRIMARY KEY (CountryID),
+	CONSTRAINT FK_Countries_Cities FOREIGN KEY(CityID)
+		REFERENCES Citites(CityID)
 )

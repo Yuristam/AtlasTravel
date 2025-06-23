@@ -9,7 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{23E6427E-9B6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tables", "Tables", "{869B599E-90F2-4AFA-94B5-7EDDFE492553}"
 	ProjectSection(SolutionItems) = preProject
+		SQL\Tables\BestTimesForVisit.sql = SQL\Tables\BestTimesForVisit.sql
+		SQL\Tables\Cities.sql = SQL\Tables\Cities.sql
+		SQL\Tables\CityCuisines.sql = SQL\Tables\CityCuisines.sql
 		SQL\Tables\Countries.sql = SQL\Tables\Countries.sql
+		SQL\Tables\Cuisines.sql = SQL\Tables\Cuisines.sql
+		SQL\Tables\Landmarks.sql = SQL\Tables\Landmarks.sql
+		SQL\Tables\LandscapeTypes.sql = SQL\Tables\LandscapeTypes.sql
 		SQL\Tables\Roles.sql = SQL\Tables\Roles.sql
 		SQL\Tables\Trips.sql = SQL\Tables\Trips.sql
 		SQL\Tables\Users.sql = SQL\Tables\Users.sql

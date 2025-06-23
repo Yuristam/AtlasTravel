@@ -1,0 +1,10 @@
+CREATE TABLE Cities (
+	CityID INT IDENTITY(1, 1),
+	Name NVARCHAR(250) NOT NULL,
+	IsCapitalCity BIT NOT NULL DEFAULT 0,
+	LandmarkID INT NULL,
+
+	CONSTRAINT PK_Cities PRIMARY KEY (CityID),
+	CONSTRAINT FK_Cities_Landmarks FOREIGN KEY (LandmarkID) 
+		REFERENCES Landmarks(LandmarkID)
+)
