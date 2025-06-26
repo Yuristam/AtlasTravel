@@ -1,11 +1,10 @@
 ﻿namespace AtlasTravel.MVC.Models
 {
-    public class Country
+    public class CityCuisine
     {
-        public int CountryID { get; set; }
-        public string CountryName { get; set; }
-        
         public int CityID { get; set; }
         public City City { get; set; }
+        public int CuisineID { get; set; }
+        public Cuisine Cuisine { get; set; }
     }
 }
