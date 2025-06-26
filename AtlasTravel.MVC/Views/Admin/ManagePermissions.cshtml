@@ -1,0 +1,21 @@
+﻿@model AtlasTravel.MVC.ViewModels.ManageRolePermissionsViewModel
+
+<h2>Управление разрешениями роли: @Model.RoleName</h2>
+
+<form method="post" asp-action="UpdatePermissions" asp-controller="Admin">
+    <input type="hidden" name="roleId" value="@Model.RoleID" />
+    @foreach (var permission in Model.AllPermissions)
+    {
+        <div>
+            <input type="checkbox" name="selectedPermissionIds"
+                   value="@permission.PermissionID"
+            @(Model.AssignedPermissions.Contains(permission.PermissionID) ? "checked" : "") />
+            @permission.PermissionName
+        </div>
+    }
+    <button class="btn btn-warning btn-sm" type="submit">Сохранить</button>
+</form>
+
+<div class="mt-3">
+    <a class="btn btn-info" asp-action="UserRoleManagement" asp-controller="Admin">Назад к управлению ролями</a>
+</div>

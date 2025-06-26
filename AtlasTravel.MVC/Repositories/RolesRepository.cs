@@ -12,7 +12,7 @@ namespace AtlasTravel.MVC.Repositories
 
         public RolesRepository(string connectionString)
         {
-            _connectionString = connectionString;    
+            _connectionString = connectionString;
         }
 
         public Task AssignRoleToUserAsync(int userId, int roleId)
@@ -99,5 +99,20 @@ namespace AtlasTravel.MVC.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public async Task AssignPermissionToRoleAsync(int roleId, int permissionId)
+        {
+            var sql = @"INSERT INTO RolePermissions (RoleID, PermissionID)
+                VALUES (@RoleID, @PermissionID)";
+
+            var parameters = new[]
+            {
+                new SqlParameter("@RoleID", roleId),
+                new SqlParameter("@PermissionID", permissionId)
+            };
+            
+            await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
+        }
+
     }
 }

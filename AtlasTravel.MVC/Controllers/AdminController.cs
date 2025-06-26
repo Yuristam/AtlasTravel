@@ -14,13 +14,15 @@ namespace AtlasTravel.MVC.Controllers
         private readonly IUsersRepository _usersRepository;
         private readonly IAdminRepository _adminRepository;
         private readonly IRolesRepository _rolesRepository;
+        private readonly IPermissionsRepository _permissionsRepository;
 
         public AdminController(IUsersRepository usersRepository, IAdminRepository adminRepository, 
-            IRolesRepository rolesRepository)
+            IRolesRepository rolesRepository, IPermissionsRepository permissionsRepository)
         {
             _usersRepository = usersRepository;
             _adminRepository = adminRepository;
             _rolesRepository = rolesRepository;
+            _permissionsRepository = permissionsRepository;
         }
 
         [HttpGet("")]
@@ -249,5 +251,31 @@ namespace AtlasTravel.MVC.Controllers
                 return View();
             }
         }
+
+
+        [HttpGet("admin/roles/{roleId}/permissions")]
+        public async Task<IActionResult> ManagePermissions(int roleId) {
+
+            var viewModel = await _permissionsRepository.GetRolePermissionsAsync(roleId);
+
+            if (viewModel == null)
+                return NotFound();
+
+            return View("ManagePermissions", viewModel);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdatePermissions(int roleId, int[] selectedPermissionIds)
+        {
+            await _permissionsRepository.ClearPermissionsAsync(roleId);
+            foreach (var permId in selectedPermissionIds)
+            {
+                await _permissionsRepository.AssignPermissionToRoleAsync(roleId, permId);
+            }
+
+            return RedirectToAction("ManageRoles");
+        }
+
     }
 }

@@ -18,6 +18,7 @@
                     <form asp-action="DeleteRole" method="post">
                         <input type="hidden" name="roleId" value="@role.RoleID" />
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        <a class="btn btn-warning btn-sm" asp-action="ManagePermissions" asp-route-roleId="@role.RoleID">Manage Permissions</a>
                     </form>
                 </td>
             </tr>
