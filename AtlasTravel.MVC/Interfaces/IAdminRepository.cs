@@ -1,4 +1,5 @@
 ﻿using AtlasTravel.MVC.Models;
+using AtlasTravel.MVC.ViewModels;
 
 namespace AtlasTravel.MVC.Interfaces
 {
@@ -9,5 +10,8 @@ namespace AtlasTravel.MVC.Interfaces
         //int CountFeedbacks();
 
         Task UpdateUserByAdminAsync(User user);
+        Task<List<UserWithRoleViewModel>> GetAllUsersWithRolesAsync();
+        Task<List<Role>> GetAllRolesAsync();
+        Task AssignRoleAsync(int userId, int roleId);
     }
 }

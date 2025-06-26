@@ -31,12 +31,19 @@ namespace AtlasTravel.MVC.Controllers
             return View(model);
         }
 
-        [HttpGet("users")]
-        public async Task<IActionResult> Users()
+        [HttpGet("admin/users")]
+        public async Task<IActionResult> ManageUsers()
         {
-            var users = await _usersRepository.GetAllUsersAsync();
+            var users = await _adminRepository.GetAllUsersWithRolesAsync();
 
-            return View(users);
+            return View("ManageUsers", users);
+        }
+
+        [HttpPost("admin/assign-role")]
+        public async Task<IActionResult> AssignRole(int userId, int roleId)
+        {
+            await _adminRepository.AssignRoleAsync(userId, roleId);
+            return RedirectToAction("ManageUsers");
         }
 
         [HttpGet("users/{id}")]

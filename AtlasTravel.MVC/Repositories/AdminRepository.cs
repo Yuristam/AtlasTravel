@@ -1,6 +1,7 @@
 ﻿using AtlasTravel.MVC.Helpers;
 using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Models;
+using AtlasTravel.MVC.ViewModels;
 using Microsoft.Data.SqlClient;
 
 namespace AtlasTravel.MVC.Repositories
@@ -33,6 +34,65 @@ namespace AtlasTravel.MVC.Repositories
                 new SqlParameter("@Budget", (object?)user.Budget ?? DBNull.Value),
                 new SqlParameter("@Password", user.Password),
                 new SqlParameter("@UserID", user.UserID)
+            };
+
+            await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
+        }
+
+        public async Task<List<Role>> GetAllRolesAsync()
+        {
+            var roles = new List<Role>();
+
+            var sql = "SELECT * FROM Roles";
+
+            using var reader = await SqlHelper.ExecuteReaderAsync(_connectionString, sql);
+
+            while (await reader.ReadAsync())
+            {
+                roles.Add(new Role()
+                { //check
+                    RoleID = (int)reader[0],
+                    RoleName = (string)reader[1]
+                });
+            }
+
+            return roles;
+        }
+
+        public async Task<List<UserWithRoleViewModel>> GetAllUsersWithRolesAsync()
+        {
+            var users = new List<UserWithRoleViewModel>();
+            var roles = await GetAllRolesAsync();
+
+            var sql = @"SELECT u.UserID, u.FullName, u.RoleID, r.RoleName
+                        FROM Users u
+                        LEFT JOIN Roles r ON u.RoleID = r.RoleID";
+
+            using var reader = await SqlHelper.ExecuteReaderAsync(_connectionString, sql);
+
+            while (await reader.ReadAsync())
+            {
+                users.Add(new UserWithRoleViewModel
+                {
+                    UserID = reader.GetInt32(0),
+                    FullName = reader.GetString(1),
+                    RoleID = reader.GetInt32(2),
+                    RoleName = reader.GetString(3),
+                    AllRoles = roles
+                });
+            }
+
+            return users;
+        }
+
+        public async Task AssignRoleAsync(int userId, int roleId)
+        {
+            var sql = "UPDATE Users SET RoleID = @RoleID WHERE UserID = @UserID";
+
+            var parameters = new[]
+            {
+                new SqlParameter("@UserID", userId),
+                new SqlParameter("@RoleID", roleId)
             };
 
             await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);

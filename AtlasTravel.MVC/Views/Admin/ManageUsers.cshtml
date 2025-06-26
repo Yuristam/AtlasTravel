@@ -1,0 +1,40 @@
+﻿@model List<AtlasTravel.MVC.ViewModels.UserWithRoleViewModel>
+
+@{
+    ViewData["Title"] = "User Role Management";
+}
+
+<h2>User Role Management</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Current Role</th>
+            <th>Change Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.RoleName</td>
+                <td>
+                    <form asp-action="AssignRole" asp-controller="Admin" method="post">
+                        <input type="hidden" name="userId" value="@user.UserID" />
+                        <select name="roleId" class="form-select">
+                            @foreach (var role in user.AllRoles)
+                            {
+                                <option value="@role.RoleID" selected="@(role.RoleID == user.RoleID)">
+                                    @role.RoleName
+                                </option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm mt-1">Update</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
