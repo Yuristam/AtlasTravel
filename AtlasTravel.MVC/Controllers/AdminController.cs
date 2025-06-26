@@ -13,11 +13,14 @@ namespace AtlasTravel.MVC.Controllers
     {
         private readonly IUsersRepository _usersRepository;
         private readonly IAdminRepository _adminRepository;
+        private readonly IRolesRepository _rolesRepository;
 
-        public AdminController(IUsersRepository usersRepository, IAdminRepository adminRepository)
+        public AdminController(IUsersRepository usersRepository, IAdminRepository adminRepository, 
+            IRolesRepository rolesRepository)
         {
             _usersRepository = usersRepository;
             _adminRepository = adminRepository;
+            _rolesRepository = rolesRepository;
         }
 
         [HttpGet("")]
@@ -34,16 +37,79 @@ namespace AtlasTravel.MVC.Controllers
         [HttpGet("admin/users")]
         public async Task<IActionResult> ManageUsers()
         {
-            var users = await _adminRepository.GetAllUsersWithRolesAsync();
+            var users = await _adminRepository.GetAllUsersAsync();
 
             return View("ManageUsers", users);
+        }
+
+        [HttpPost("admin/create-role")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                ModelState.AddModelError("RoleName", "Имя роли не может быть пустым.");
+                return View("UserRoleManagement");
+            }
+            try
+            {
+                await _rolesRepository.CreateRoleAsync(roleName);
+                return RedirectToAction("UserRoleManagement");
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError("", $"Произошла ошибка при создании роли. {ex.Message}");
+                return View("UserRoleManagement");
+            }
+        }
+
+        [HttpPost("admin/delete-role")]
+        public async Task<IActionResult> DeleteRole(int roleId)
+        {
+            try
+            {
+                var role = await _rolesRepository.GetRoleByIdAsync(roleId);
+                var users = await _rolesRepository.GetUsersByRoleAsync(roleId);
+
+                if (role == null)
+                    return NotFound();
+
+                if (role.RoleName.ToUpper() == "ADMIN" || role.RoleName.ToUpper() == "USER")
+                    return BadRequest("Нельзя удалить системную роль ADMIN или USER.");
+
+                if (users.Any(u => u.RoleID == roleId))
+                {
+                    return BadRequest("Нельзя удалить роль, пока есть пользователи с этой ролью.");
+                }
+
+                await _rolesRepository.DeleteRoleAsync(roleId);
+                return RedirectToAction("UserRoleManagement");
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError("", $"Произошла ошибка при удалении роли. {ex.Message}");
+                return View("UserRoleManagement");
+            }
+        }
+        
+        [HttpGet("admin/roles")]
+        public async Task<IActionResult> ManageRoles()
+        {
+            var roles = await _rolesRepository.GetAllRolesAsync();
+            return View("ManageRoles", roles);
+        }
+        
+        [HttpGet("admin/user-role-management")]
+        public async Task<IActionResult> UserRoleManagement()
+        {
+            var users = await _adminRepository.GetAllUsersWithRolesAsync();
+            return View("UserRoleManagement", users);
         }
 
         [HttpPost("admin/assign-role")]
         public async Task<IActionResult> AssignRole(int userId, int roleId)
         {
             await _adminRepository.AssignRoleAsync(userId, roleId);
-            return RedirectToAction("ManageUsers");
+            return RedirectToAction("UserRoleManagement");
         }
 
         [HttpGet("users/{id}")]
@@ -91,7 +157,7 @@ namespace AtlasTravel.MVC.Controllers
                 };
 
                 await _usersRepository.CreateUserAsync(user);
-                return RedirectToAction("Users");
+                return RedirectToAction("ManageUsers");
             }
             catch (SqlException ex)
             {
@@ -147,7 +213,7 @@ namespace AtlasTravel.MVC.Controllers
                 }
 
                 await _adminRepository.UpdateUserByAdminAsync(existingUser);
-                return RedirectToAction("Users");
+                return RedirectToAction("ManageUsers");
             }
             catch (SqlException ex)
             {
@@ -175,7 +241,7 @@ namespace AtlasTravel.MVC.Controllers
             try
             {
                 await _usersRepository.DeleteUserAsync(id);
-                return RedirectToAction("Users");
+                return RedirectToAction("ManageUsers");
             }
             catch (SqlException ex)
             {

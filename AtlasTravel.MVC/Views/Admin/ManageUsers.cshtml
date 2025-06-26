@@ -1,40 +1,54 @@
-﻿@model List<AtlasTravel.MVC.ViewModels.UserWithRoleViewModel>
+﻿@model ICollection<AtlasTravel.MVC.Models.User>;
 
 @{
-    ViewData["Title"] = "User Role Management";
+    ViewData["Title"] = "Users";
 }
 
-<h2>User Role Management</h2>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Full Name</th>
-            <th>Current Role</th>
-            <th>Change Role</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.FullName</td>
-                <td>@user.RoleName</td>
-                <td>
-                    <form asp-action="AssignRole" asp-controller="Admin" method="post">
-                        <input type="hidden" name="userId" value="@user.UserID" />
-                        <select name="roleId" class="form-select">
-                            @foreach (var role in user.AllRoles)
-                            {
-                                <option value="@role.RoleID" selected="@(role.RoleID == user.RoleID)">
-                                    @role.RoleName
-                                </option>
-                            }
-                        </select>
-                        <button type="submit" class="btn btn-primary btn-sm mt-1">Update</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="text-center">
+    <h1 class="display-4">Users</h1>
+    <p>List of users in the system.</p>
+    @if (!Model.Any())
+    {
+        <p>Пользователей пока нет.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fullname</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Budget</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.UserID</td>
+                        <td>@user.FullName</td>
+                        <td>@user.Email</td>
+                        <td>@user.Password</td>
+                        <td>@user.Budget</td>
+                        <td>
+                            <a class="btn btn-info" asp-action="UserDetails" asp-route-id="@user.UserID">Details</a>
+                            <a class="btn btn-warning" asp-action="EditUser" asp-route-id="@user.UserID">Edit</a>
+                            <a class="btn btn-danger" asp-action="DeleteUser" asp-route-id="@user.UserID">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    <div>
+        <a class="btn btn-primary" asp-action="CreateUser">Create New User</a>
+        <a class="btn btn-secondary" asp-action="Users">Refresh</a>
+        @* <a class="btn btn-danger" asp-action="Logout">Logout</a> *@
+    </div>
+    <div class="mt-3">
+        <a class="btn btn-info" asp-action="Index" asp-controller="Home">Back to Home</a>
+    </div>
+</div>
