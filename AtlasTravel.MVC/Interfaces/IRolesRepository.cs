@@ -7,11 +7,9 @@ namespace AtlasTravel.MVC.Interfaces
     {
         Task<List<Role>> GetAllRolesAsync();
         Task<Role> GetRoleByIdAsync(int roleId);
-        Task CreateRoleAsync(string role);
-        Task UpdateRoleAsync(Role role);
-        Task DeleteRoleAsync(int roleId);
         Task<List<UserWithRoleViewModel>> GetUsersByRoleAsync(int roleId);
+        Task CreateRoleAsync(string role);
+        Task DeleteRoleAsync(int roleId);
         Task AssignRoleToUserAsync(int userId, int roleId);
-        Task RemoveRoleFromUserAsync(int userId, int roleId);
     }
 }

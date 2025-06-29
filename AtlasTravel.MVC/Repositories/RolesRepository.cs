@@ -15,25 +15,6 @@ namespace AtlasTravel.MVC.Repositories
             _connectionString = connectionString;
         }
 
-        public Task AssignRoleToUserAsync(int userId, int roleId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task CreateRoleAsync(string roleName)
-        {
-            var sql = "INSERT INTO Roles (RoleName) VALUES (@RoleName)";
-            var parameters = new[] { new SqlParameter("@RoleName", roleName) };
-            await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
-        }
-
-        public Task DeleteRoleAsync(int roleId)
-        {
-            var sql = "DELETE FROM Roles WHERE RoleID = @RoleID";
-            var parameters = new[] { new SqlParameter("@RoleID", roleId) };
-            return SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
-        }
-
         public Task<List<Role>> GetAllRolesAsync()
         {
             var roles = new List<Role>();
@@ -90,29 +71,31 @@ namespace AtlasTravel.MVC.Repositories
             return Task.FromResult(users);
         }
 
-        public Task RemoveRoleFromUserAsync(int userId, int roleId)
+        public async Task CreateRoleAsync(string roleName)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateRoleAsync(Role role)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task AssignPermissionToRoleAsync(int roleId, int permissionId)
-        {
-            var sql = @"INSERT INTO RolePermissions (RoleID, PermissionID)
-                VALUES (@RoleID, @PermissionID)";
-
-            var parameters = new[]
-            {
-                new SqlParameter("@RoleID", roleId),
-                new SqlParameter("@PermissionID", permissionId)
-            };
-            
+            var sql = "INSERT INTO Roles (RoleName) VALUES (@RoleName)";
+            var parameters = new[] { new SqlParameter("@RoleName", roleName) };
             await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
         }
 
+        public Task DeleteRoleAsync(int roleId)
+        {
+            var sql = "DELETE FROM Roles WHERE RoleID = @RoleID";
+            var parameters = new[] { new SqlParameter("@RoleID", roleId) };
+            return SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
+        }
+
+        public async Task AssignRoleToUserAsync(int userId, int roleId)
+        {
+            var sql = "UPDATE Users SET RoleID = @RoleID WHERE UserID = @UserID";
+
+            var parameters = new[]
+            {
+                new SqlParameter("@UserID", userId),
+                new SqlParameter("@RoleID", roleId)
+            };
+
+            await SqlHelper.ExecuteNonQueryAsync(_connectionString, sql, parameters);
+        }
     }
 }

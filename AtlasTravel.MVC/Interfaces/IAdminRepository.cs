@@ -9,10 +9,7 @@ namespace AtlasTravel.MVC.Interfaces
         // int CountTrips();
         //int CountFeedbacks();
 
-        Task<ICollection<User>> GetAllUsersAsync();
         Task UpdateUserByAdminAsync(User user);
         Task<List<UserWithRoleViewModel>> GetAllUsersWithRolesAsync();
-        Task<List<Role>> GetAllRolesAsync();
-        Task AssignRoleAsync(int userId, int roleId);
     }
 }

@@ -4,6 +4,7 @@ namespace AtlasTravel.MVC.Interfaces
 {
     public interface IUsersRepository
     {
+        Task<ICollection<User>> GetAllUsersAsync();
         Task<User> GetUserByIdAsync(int id);
         Task<User> GetUserByEmailAsync(string email);
         Task CreateUserAsync(User user);

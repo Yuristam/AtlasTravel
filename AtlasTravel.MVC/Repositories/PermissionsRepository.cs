@@ -9,11 +9,11 @@ namespace AtlasTravel.MVC.Repositories
     public class PermissionsRepository : IPermissionsRepository
     {
         private readonly string _connectionString;
+
         public PermissionsRepository(string connectionString)
         {
             _connectionString = connectionString;
         }
-
 
         public async Task ClearPermissionsAsync(int roleId)
         {
@@ -74,6 +74,5 @@ namespace AtlasTravel.MVC.Repositories
 
             return model;
         }
-
     }
 }

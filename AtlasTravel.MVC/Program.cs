@@ -1,6 +1,7 @@
 using AtlasTravel.MVC.Interfaces;
 using AtlasTravel.MVC.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,8 @@ var connectionString = builder.Configuration.GetConnectionString("MSSQLConnectio
 builder.Services.AddScoped<IUsersRepository>(provider => new UsersRepository(connectionString));
 builder.Services.AddScoped<IRolesRepository>(provider => new RolesRepository(connectionString));
 builder.Services.AddScoped<IPermissionsRepository>(provider => new PermissionsRepository(connectionString));
-builder.Services.AddScoped<IAdminRepository>(provider => new AdminRepository(connectionString));
+builder.Services.AddScoped<IAdminRepository>(provider => 
+    new AdminRepository(connectionString, provider.GetRequiredService<IRolesRepository>()));
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -30,12 +32,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-
-/*if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}*/
 
 app.UseSession();
 app.UseHttpsRedirection();

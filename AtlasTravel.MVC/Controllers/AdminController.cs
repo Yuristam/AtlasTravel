@@ -11,6 +11,7 @@ namespace AtlasTravel.MVC.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
+        private static readonly string[] SYSTEM_ROLES = { "ADMIN", "USER" };
         private readonly IUsersRepository _usersRepository;
         private readonly IAdminRepository _adminRepository;
         private readonly IRolesRepository _rolesRepository;
@@ -36,84 +37,14 @@ namespace AtlasTravel.MVC.Controllers
             return View(model);
         }
 
-        [HttpGet("admin/users")]
+        [HttpGet("users")]
         public async Task<IActionResult> ManageUsers()
         {
-            var users = await _adminRepository.GetAllUsersAsync();
+            var users = await _usersRepository.GetAllUsersAsync();
 
             return View("ManageUsers", users);
         }
-
-        [HttpPost("admin/create-role")]
-        public async Task<IActionResult> CreateRole(string roleName)
-        {
-            if (string.IsNullOrWhiteSpace(roleName))
-            {
-                ModelState.AddModelError("RoleName", "Имя роли не может быть пустым.");
-                return View("UserRoleManagement");
-            }
-            try
-            {
-                await _rolesRepository.CreateRoleAsync(roleName);
-                return RedirectToAction("UserRoleManagement");
-            }
-            catch (SqlException ex)
-            {
-                ModelState.AddModelError("", $"Произошла ошибка при создании роли. {ex.Message}");
-                return View("UserRoleManagement");
-            }
-        }
-
-        [HttpPost("admin/delete-role")]
-        public async Task<IActionResult> DeleteRole(int roleId)
-        {
-            try
-            {
-                var role = await _rolesRepository.GetRoleByIdAsync(roleId);
-                var users = await _rolesRepository.GetUsersByRoleAsync(roleId);
-
-                if (role == null)
-                    return NotFound();
-
-                if (role.RoleName.ToUpper() == "ADMIN" || role.RoleName.ToUpper() == "USER")
-                    return BadRequest("Нельзя удалить системную роль ADMIN или USER.");
-
-                if (users.Any(u => u.RoleID == roleId))
-                {
-                    return BadRequest("Нельзя удалить роль, пока есть пользователи с этой ролью.");
-                }
-
-                await _rolesRepository.DeleteRoleAsync(roleId);
-                return RedirectToAction("UserRoleManagement");
-            }
-            catch (SqlException ex)
-            {
-                ModelState.AddModelError("", $"Произошла ошибка при удалении роли. {ex.Message}");
-                return View("UserRoleManagement");
-            }
-        }
         
-        [HttpGet("admin/roles")]
-        public async Task<IActionResult> ManageRoles()
-        {
-            var roles = await _rolesRepository.GetAllRolesAsync();
-            return View("ManageRoles", roles);
-        }
-        
-        [HttpGet("admin/user-role-management")]
-        public async Task<IActionResult> UserRoleManagement()
-        {
-            var users = await _adminRepository.GetAllUsersWithRolesAsync();
-            return View("UserRoleManagement", users);
-        }
-
-        [HttpPost("admin/assign-role")]
-        public async Task<IActionResult> AssignRole(int userId, int roleId)
-        {
-            await _adminRepository.AssignRoleAsync(userId, roleId);
-            return RedirectToAction("UserRoleManagement");
-        }
-
         [HttpGet("users/{id}")]
         public async Task<IActionResult> UserDetails(int id)
         {
@@ -252,8 +183,77 @@ namespace AtlasTravel.MVC.Controllers
             }
         }
 
+        [HttpGet("user-role-management")]
+        public async Task<IActionResult> UserRoleManagement()
+        {
+            var users = await _adminRepository.GetAllUsersWithRolesAsync();
+            return View("UserRoleManagement", users);
+        }
 
-        [HttpGet("admin/roles/{roleId}/permissions")]
+        [HttpGet("roles")]
+        public async Task<IActionResult> ManageRoles()
+        {
+            var roles = await _rolesRepository.GetAllRolesAsync();
+            return View("ManageRoles", roles);
+        }
+
+        [HttpPost("assign-role")]
+        public async Task<IActionResult> AssignRole(int userId, int roleId)
+        {
+            await _rolesRepository.AssignRoleToUserAsync(userId, roleId);
+            return RedirectToAction("UserRoleManagement");
+        }
+
+        [HttpPost("create-role")]
+        public async Task<IActionResult> CreateRole(string roleName)
+        {
+            if (string.IsNullOrWhiteSpace(roleName))
+            {
+                ModelState.AddModelError("RoleName", "Имя роли не может быть пустым.");
+                return View("UserRoleManagement");
+            }
+            try
+            {
+                await _rolesRepository.CreateRoleAsync(roleName);
+                return RedirectToAction("UserRoleManagement");
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError("", $"Произошла ошибка при создании роли. {ex.Message}");
+                return View("UserRoleManagement");
+            }
+        }
+
+        [HttpPost("delete-role")]
+        public async Task<IActionResult> DeleteRole(int roleId)
+        {
+            try
+            {
+                var role = await _rolesRepository.GetRoleByIdAsync(roleId);
+                var users = await _rolesRepository.GetUsersByRoleAsync(roleId);
+
+                if (role == null)
+                    return NotFound();
+
+                if (SYSTEM_ROLES.Contains(role.RoleName.ToUpper()))
+                    return BadRequest($"Нельзя удалить системную роль {role.RoleName}.");
+
+                if (users.Any(u => u.RoleID == roleId))
+                {
+                    return BadRequest("Нельзя удалить роль, пока есть пользователи с этой ролью.");
+                }
+
+                await _rolesRepository.DeleteRoleAsync(roleId);
+                return RedirectToAction("UserRoleManagement");
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError("", $"Произошла ошибка при удалении роли. {ex.Message}");
+                return View("UserRoleManagement");
+            }
+        }
+
+        [HttpGet("roles/{roleId}/permissions")]
         public async Task<IActionResult> ManagePermissions(int roleId) {
 
             var viewModel = await _permissionsRepository.GetRolePermissionsAsync(roleId);
@@ -263,7 +263,6 @@ namespace AtlasTravel.MVC.Controllers
 
             return View("ManagePermissions", viewModel);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> UpdatePermissions(int roleId, int[] selectedPermissionIds)
@@ -276,6 +275,5 @@ namespace AtlasTravel.MVC.Controllers
 
             return RedirectToAction("ManageRoles");
         }
-
     }
 }
