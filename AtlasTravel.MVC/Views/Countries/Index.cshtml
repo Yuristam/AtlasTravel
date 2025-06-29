@@ -1,0 +1,28 @@
+﻿@model ICollection<AtlasTravel.MVC.Models.Country>
+
+@{
+    ViewData["Title"] = "Countries";
+}
+
+<h1 class="display-4">Countries</h1>
+@if(!Model.Any()){
+    <p>Нет стран!</p>
+}
+else{
+<table class="table table-hover">
+    <thead>
+        <tr>
+                <th>Country</th>
+            </tr>
+    </thead>
+    <tbody>
+        @foreach(var country in Model){
+            <tr>
+                <td>@country.CountryName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+}
+<a class="btn btn-info" asp-action="Index" asp-controller="Home">Go Home</a>
+

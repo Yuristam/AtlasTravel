@@ -8,7 +8,7 @@ namespace AtlasTravel.MVC.Interfaces
         Task<Country> GetCountryByIdAsync(int id);
 
         Task CreateCountryAsync(Country country);
-        Task UpdateCountryAsync(int id);
+        Task UpdateCountryAsync(Country country);
         Task DeleteCountryAsync(int id);
     }
 }

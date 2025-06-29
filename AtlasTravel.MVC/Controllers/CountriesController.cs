@@ -1,15 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AtlasTravel.MVC.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AtlasTravel.MVC.Controllers
 {
     [Route("countries")]
     public class CountriesController : Controller
     {
-        public CountriesController() { }
+        private readonly ICountriesRepository _countriesRepository;
 
-        public IActionResult Index()
+        public CountriesController(ICountriesRepository countriesRepository)
         {
-            return View();
+            _countriesRepository = countriesRepository;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var countries = await _countriesRepository.GetAllCountriesAsync();
+
+            return View(countries);
         }
 
     }
