@@ -2,7 +2,7 @@
 
 namespace AtlasTravel.MVC.Enums
 {
-    public enum BestTimesForVisit
+    public enum BestTimesForVisit : byte
     {
         [Display(Name = "All Season")]
         All_Season = 1,

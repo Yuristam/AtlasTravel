@@ -2,7 +2,7 @@
 
 namespace AtlasTravel.MVC.Enums
 {
-    public enum LandscapeType
+    public enum LandscapeType : byte
     {
         [Display(Name = "Desert")]
         Desert = 1,
@@ -14,5 +14,7 @@ namespace AtlasTravel.MVC.Enums
         Forest = 4,
         [Display(Name = "Volcano")]
         Volcano = 5,
+        [Display(Name = "Architectural")]
+        Architectural = 6,
     }
 }
